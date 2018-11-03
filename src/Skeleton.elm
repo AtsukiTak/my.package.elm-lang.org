@@ -114,7 +114,7 @@ viewLogo =
         [ style "color" "black"
         , style "padding-left" "8px"
         ]
-        [ div [ style "line-height" "20px" ] [ text "elm" ]
+        [ div [ style "line-height" "20px" ] [ text "my-elm" ]
         , div
           [ style "line-height" "10px"
           , style "font-size" "0.5em"
