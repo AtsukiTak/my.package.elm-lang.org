@@ -96,8 +96,7 @@ init _ url key =
 
 
 type Msg
-  = NoOp
-  | LinkClicked Browser.UrlRequest
+  = LinkClicked Browser.UrlRequest
   | UrlChanged Url.Url
   | DocsMsg Docs.Msg
 
@@ -105,9 +104,6 @@ type Msg
 update : Msg -> Model -> ( Model, Cmd Msg )
 update message model =
   case message of
-    NoOp ->
-      ( model, Cmd.none )
-
     LinkClicked urlRequest ->
       case urlRequest of
         Browser.Internal url ->
