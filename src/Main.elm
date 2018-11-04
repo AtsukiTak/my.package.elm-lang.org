@@ -5,6 +5,7 @@ import Browser.Navigation as Nav
 import Url
 import Url.Parser as Parser exposing (Parser, (</>), custom, fragment, map, oneOf, s, top)
 
+import Page.Top as Top
 import Page.Docs as Docs
 import Page.Problem as Problem
 import Session
@@ -37,6 +38,7 @@ type alias Model =
 
 type Page
   = NotFound Session.Data
+  | Top Top.Model
   | Docs Docs.Model
 
 
@@ -66,6 +68,9 @@ view model =
         , attrs = Problem.styles
         , kids = Problem.notFound
         }
+
+    Top top ->
+      Skeleton.view identity (Top.view top)
 
     Docs docs ->
       Skeleton.view DocsMsg (Docs.view docs)
@@ -124,6 +129,13 @@ update message model =
         _         -> ( model, Cmd.none )
 
 
+stepTop : Model -> ( Top.Model, Cmd msg ) -> ( Model, Cmd msg )
+stepTop model (top, cmd) =
+  ( { model | page = Top top }
+  , cmd
+  )
+
+
 stepDocs : Model -> ( Docs.Model, Cmd Docs.Msg ) -> ( Model, Cmd Msg )
 stepDocs model (docs, cmds) =
   ( { model | page = Docs docs }
@@ -145,7 +157,10 @@ stepUrl url model =
 
     parser =
       oneOf
-        [ route (s "packages" </> author_ </> project_ </> focus_)
+        [ route top
+            ( stepTop model (Top.init session)
+            )
+        , route (s "packages" </> author_ </> project_ </> focus_)
             (\author project focus ->
                 stepDocs model (Docs.init session author project focus)
             )
@@ -165,6 +180,7 @@ exit : Model -> Session.Data
 exit model =
   case model.page of
     NotFound session -> session
+    Top m -> m.session
     Docs m -> m.session
 
 
