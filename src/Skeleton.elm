@@ -1,4 +1,4 @@
-module Skeleton exposing (..)
+module Skeleton exposing (Details, Segment, view, authorSegment, moduleSegment, projectSegment)
 
 import Browser
 import Html exposing (..)

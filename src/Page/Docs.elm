@@ -1,4 +1,4 @@
-module Page.Docs exposing (..)
+module Page.Docs exposing (Model, Msg, Focus(..), init, update, view)
 
 import Browser.Dom as Dom
 import Elm.Docs as Docs

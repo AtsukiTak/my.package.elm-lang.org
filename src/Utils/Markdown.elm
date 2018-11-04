@@ -1,4 +1,4 @@
-module Utils.Markdown exposing (..)
+module Utils.Markdown exposing (block)
 
 import Html
 import Markdown exposing (defaultOptions)

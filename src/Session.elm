@@ -1,4 +1,4 @@
-module Session exposing (..)
+module Session exposing (Data, empty, getReadme, addReadme, fetchReadme, getDocs, addDocs, fetchDocs)
 
 import Dict
 import Elm.Docs as Docs
