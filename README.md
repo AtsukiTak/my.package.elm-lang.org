@@ -16,3 +16,8 @@ You can host your private package's "docs.json" and "README.md".
 1. Run `make`.
 1. Run `make docker`. Make sure you have automake and docker.
 1. Access to `localhost:8000/packages/[your name]/[package name]`
+
+
+## Demo
+
+http://package.elm-lang.atsuki.me/
