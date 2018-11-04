@@ -47,7 +47,7 @@ addReadme author project readme data =
 fetchReadme : String -> String -> Http.Request String
 fetchReadme author project =
   Http.getString <|
-    Url.absolute [ "packages", author, project, "README.md" ] []
+    Url.absolute [ "assets", "packages", author, project, "README.md" ] []
 
 
 
@@ -73,6 +73,6 @@ addDocs author project docs data =
 fetchDocs : String -> String -> Http.Request (List Docs.Module)
 fetchDocs author project =
   Http.get
-    (Url.absolute [ "packages", author, project, "docs.json" ] [])
+    (Url.absolute [ "assets", "packages", author, project, "docs.json" ] [])
     (Decode.list Docs.decoder)
 
