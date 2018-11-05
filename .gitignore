@@ -1,4 +1,4 @@
 *.swp
 /elm-stuff
 /www/assets/elm.js
-/www/packages/**
+/www/assets/packages/**
