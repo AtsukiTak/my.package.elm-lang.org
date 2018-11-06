@@ -98,6 +98,7 @@ init _ url key =
 type Msg
   = LinkClicked Browser.UrlRequest
   | UrlChanged Url.Url
+  | TopMsg Top.Msg
   | DocsMsg Docs.Msg
 
 
@@ -119,16 +120,21 @@ update message model =
     UrlChanged url ->
       stepUrl url model
 
+    TopMsg msg ->
+      case model.page of
+        Top top -> stepTop model (Top.update msg top)
+        _       -> ( model, Cmd.none )
+
     DocsMsg msg ->
       case model.page of
         Docs docs -> stepDocs model (Docs.update msg docs)
         _         -> ( model, Cmd.none )
 
 
-stepTop : Model -> ( Top.Model, Cmd msg ) -> ( Model, Cmd msg )
+stepTop : Model -> ( Top.Model, Cmd Top.Msg ) -> ( Model, Cmd Msg )
 stepTop model (top, cmd) =
   ( { model | page = Top top }
-  , cmd
+  , Cmd.map TopMsg cmd
   )
 
 

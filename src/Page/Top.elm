@@ -2,7 +2,9 @@ module Page.Top exposing (..)
 
 import Html exposing (..)
 import Html.Attributes exposing (..)
+import Http
 
+import Page.Problem as Problem
 import Session
 import Skeleton
 import Href
@@ -16,23 +18,64 @@ import Href
 
 type alias Model =
   { session : Session.Data
-  , entries : List Entry
+  , entries : Status (List Session.Entry)
   }
 
 
-type alias Entry =
-  { author : String
-  , project : String
-  , summary : String
-  }
+
+type Status a
+  = Failure
+  | Loading
+  | Success a
 
 
-init : Session.Data -> ( Model, Cmd msg )
+init : Session.Data -> ( Model, Cmd Msg )
 init session =
-  ( Model session entryList
-  , Cmd.none
-  )
+  case Session.getEntries session of
+    Nothing ->
+      ( Model session Loading
+      , Http.send GotEntries (Session.fetchEntries)
+      )
 
+    Just entries ->
+      ( Model session (Success entries)
+      , Cmd.none
+      )
+
+
+
+{- *************
+   Update
+   ************* -}
+
+
+type Msg
+  = GotEntries (Result Http.Error (List Session.Entry))
+
+
+update : Msg -> Model -> ( Model, Cmd Msg )
+update msg model =
+  case msg of
+    GotEntries result ->
+      case result of
+        Err _ ->
+          ( { model | entries = Failure }
+          , Cmd.none
+          )
+
+        Ok entries ->
+          ( { model
+              | entries = Success entries
+              , session = Session.replaceEntries entries model.session
+            }
+          , Cmd.none
+          )
+
+
+
+{- **************
+   View
+   ************** -}
 
 
 view : Model -> Skeleton.Details msg
@@ -41,20 +84,30 @@ view model =
   , header = []
   , attrs = []
   , kids =
-    [ viewEntries entryList
+    [ viewEntries model.entries
     ]
   }
 
 
-viewEntries : List Entry -> Html msg
-viewEntries entries =
-  div [ class "catalog" ]
-  [ div []
-    (List.map viewEntry entries)
-  ]
+viewEntries : Status (List Session.Entry) -> Html msg
+viewEntries status =
+  case status of
+    Success entries ->
+      div [ class "catalog" ]
+        [ div []
+          (List.map viewEntry entries)
+        ]
+
+    Loading ->
+      div [ class "catalog" ] []
+
+    Failure ->
+      div
+        (class "catalog" :: Problem.styles)
+        (Problem.offline "packages.json")
 
 
-viewEntry : Entry -> Html msg
+viewEntry : Session.Entry -> Html msg
 viewEntry ({ author, project, summary } as entry) =
   div [ class "pkg-summary" ]
   [ div []
@@ -66,15 +119,4 @@ viewEntry ({ author, project, summary } as entry) =
       ]
     ]
   , p [ class "pkg-summary-desc" ] [ text summary ]
-  ]
-
-
-
-{- **************
-   Entries
-   ************** -}
-
-entryList : List Entry
-entryList =
-  [ Entry "elm" "core" "Elm's standard libraries"
   ]

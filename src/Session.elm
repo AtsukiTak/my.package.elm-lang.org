@@ -1,4 +1,4 @@
-module Session exposing (Data, empty, getReadme, addReadme, fetchReadme, getDocs, addDocs, fetchDocs)
+module Session exposing (Data, Entry, empty, getEntries, replaceEntries, fetchEntries, getReadme, addReadme, fetchReadme, getDocs, addDocs, fetchDocs)
 
 import Dict
 import Elm.Docs as Docs
@@ -9,15 +9,53 @@ import Url.Builder as Url
 
 
 type alias Data =
-  { readmes : Dict.Dict String String
+  { entries : Maybe (List Entry)
+  , readmes : Dict.Dict String String
   , docs : Dict.Dict String (List Docs.Module)
   }
 
 
 empty : Data
 empty =
-  Data Dict.empty Dict.empty
+  Data Nothing Dict.empty Dict.empty
 
+
+
+{- *************
+   Entry
+   ************* -}
+
+
+type alias Entry =
+  { author : String
+  , project : String
+  , summary : String
+  }
+
+
+getEntries : Data -> Maybe (List Entry)
+getEntries data =
+  data.entries
+
+
+replaceEntries : List Entry -> Data -> Data
+replaceEntries newEntries data =
+  { data | entries = Just newEntries }
+
+
+fetchEntries : Http.Request (List Entry)
+fetchEntries =
+  Http.get
+    (Url.absolute [ "assets", "packages", "packages.json" ] [])
+    (Decode.list entryDecoder)
+
+
+entryDecoder : Decode.Decoder Entry
+entryDecoder =
+  Decode.map3 Entry
+    (Decode.field "author" Decode.string)
+    (Decode.field "project" Decode.string)
+    (Decode.field "summary" Decode.string)
 
 
 {- *************
